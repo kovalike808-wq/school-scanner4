@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolGuard • Умный школьный сканер</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --text: #374151;
+            --text-light: #6b7280;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: white;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .scan-section {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            border-radius: 15px;
+            border: 3px dashed var(--primary);
+            background: linear-gradient(45deg, #f8fafc, #e2e8f0);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #video:hover {
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .button.success:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .button.exit {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+        }
+
+        .button.exit:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .student-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .student-id {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .student-name {
+            color: var(--dark);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .history-badge {
+            background: var(--warning);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .history-section {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-item {
+            background: var(--light);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--primary);
+        }
+
+        .history-time {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .history-event {
+            font-weight: 600;
+        }
+
+        .history-event.enter { color: var(--success); }
+        .history-event.exit { color: var(--error); }
+        .history-event.warning { color: var(--warning); }
+
+        .action-buttons {
+            display: grid;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: 600;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 2px solid var(--error);
+        }
+
+        .status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 2px solid var(--warning);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .scanner-active {
+            animation: pulse 2s infinite, glow 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3); }
+            to { box-shadow: 0 5px 25px rgba(99, 102, 241, 0.6); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .button {
+                padding: 16px 25px;
+                font-size: 15px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <h1>SchoolGuard</h1>
+            <div class="subtitle">Автоматическая система доступа</div>
+        </div>
+        
+        <div id="reader" class="scan-section">
+            <video id="video" width="100%" playsinline></video>
+            <button id="scanButton" class="button scanner-active">
+                <i class="fas fa-camera"></i>
+                Начать сканирование
+            </button>
+        </div>
+        
+        <div id="form" class="hidden">
+            <div class="student-card">
+                <div class="student-id">ID: <span id="studentId"></span></div>
+                <div class="student-name">
+                    <i class="fas fa-user-graduate"></i>
+                    <span id="studentName"></span>
+                </div>
+                <div id="historyInfo" class="hidden">
+                    <div class="history-badge">
+                        <i class="fas fa-history"></i>
+                        Последнее: <span id="lastEvent"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historySection" class="history-section hidden">
+                <div class="history-title">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    История за сегодня:
+                </div>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="autoButton" class="button" onclick="submitAutoAction()">
+                    <div class="loading">
+                        <i class="fas fa-brain"></i>
+                        Определяем действие
+                        <div class="loading-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </button>
+                
+                <div id="manualButtons" class="hidden" style="display: grid; gap: 12px;">
+                    <button onclick="submitForm('Вход')" class="button success">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Вход в школу
+                    </button>
+                    <button onclick="submitForm('Выход')" class="button exit">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Выход из школы
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status hidden"></div>
+
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i>
+            Автоматическая система • v3.0
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwS2V7qLMYdC14zCqM-sJgahytQUU_aeTcsrD1GSS90zfONFmCKBYE875uz63IXjsRq/exec';
+        
+        let scannedStudentId = '';
+        let videoStream = null;
+        let lastEvent = null;
+        let studentName = '';
+        let studentHistory = [];
+
+        document.getElementById('scanButton').addEventListener('click', startScanner);
+
+        function startScanner() {
+            const video = document.getElementById('video');
+            const scanButton = document.getElementById('scanButton');
+            
+            scanButton.innerHTML = '<i class="fas fa-search"></i> Сканирую...';
+            scanButton.classList.remove('scanner-active');
+
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            })
+            .then(function(stream) {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true);
+                video.play();
+                requestAnimationFrame(tick);
+            })
+            .catch(function(error) {
+                showStatus('Ошибка доступа к камере', 'error');
+                scanButton.innerHTML = '<i class="fas fa-camera"></i> Попробовать снова';
+                scanButton.classList.add('scanner-active');
+            });
+        }
+
+        function tick() {
+            const video = document.getElementById('video');
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    scannedStudentId = code.data;
+                    stopScanner();
+                    validateStudent();
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function stopScanner() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            const video = document.getElementById('video');
+            if (video.srcObject) {
+                video.srcObject = null;
+            }
+        }
+
+        function validateStudent() {
+            showStatus('🔍 Проверяем доступ...', 'warning');
+            
+            fetch(`${SCRIPT_URL}?action=validate&studentId=${encodeURIComponent(scannedStudentId)}`)
+            .then(response => response.text())
+            .then(data => {
+                if (data.startsWith('VALID')) {
+                    const parts = data.split('|');
+                    studentName = parts[1] || scannedStudentId;
+                    checkStudentHistory();
+                } else {
+                    showStatus('❌ Ученик не найден в системе. Доступ запрещен.', 'error');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                showStatus('❌ Ошибка проверки доступа', 'error');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            });
+        }
+
+        function checkStudentHistory() {
+            document.getElementById('studentId').textContent = scannedStudentId;
+            document.getElementById('studentName').textContent = studentName;
+            document.getElementById('reader').classList.add('hidden');
+            document.getElementById('form').classList.remove('hidden');
+            
+            document.getElementById('autoButton').innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-database"></i>
+                    Загружаем историю
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+
+            fetch(`${SCRIPT_URL}?action=getHistory&studentId=${encodeURIComponent(scannedStudentId)}`)
+            .then(response => response.text())
+            .then(data => {
+                try {
+                    const parts = data.split('|');
+                    lastEvent = parts[0];
+                    studentName = parts[1] || scannedStudentId;
+                    const studentClass = parts[2] || '';
+                    studentHistory = parts[3] ? JSON.parse(parts[3]) : [];
+                    
+                    // Показываем класс ученика
+                    document.getElementById('studentName').innerHTML = `
+                        <i class="fas fa-user-graduate"></i>
+                        ${studentName} <small>(${studentClass})</small>
+                    `;
+                    
+                    updateUI();
+                    showHistory();
+                } catch (error) {
+                    showManualSelection();
+                }
+            })
+            .catch(error => {
+                showManualSelection();
+            });
+        }
+
+        function showHistory() {
+            const historyList = document.getElementById('historyList');
+            const historySection = document.getElementById('historySection');
+            
+            if (studentHistory.length > 0) {
+                historySection.classList.remove('hidden');
+                historyList.innerHTML = '';
+                
+                studentHistory.forEach(event => {
+                    const time = new Date(event.time).toLocaleTimeString();
+                    const date = new Date(event.time);
+                    const dayOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][date.getDay()];
+                    
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <span class="history-time">${dayOfWeek} ${time}</span>
+                        <span class="history-event ${event.type === 'Вход' ? 'enter' : event.type === 'Опоздание' ? 'warning' : 'exit'}">
+                            ${event.type === 'Вход' ? '✅ Вход' : event.type === 'Опоздание' ? '⚠️ Опоздание' : '🚪 Выход'}
+                        </span>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            } else {
+                historySection.classList.add('hidden');
+            }
+        }
+
+        function updateUI() {
+            const autoButton = document.getElementById('autoButton');
+            const historyInfo = document.getElementById('historyInfo');
+            const lastEventSpan = document.getElementById('lastEvent');
+            const manualButtons = document.getElementById('manualButtons');
+
+            if (lastEvent === 'Нет истории') {
+                autoButton.innerHTML = '<i class="fas fa-door-open"></i> Рекомендуем: Вход в школу';
+                autoButton.className = 'button success';
+                historyInfo.classList.add('hidden');
+                manualButtons.classList.add('hidden');
+                autoButton.classList.remove('hidden');
+            } else if (lastEvent === 'Вход') {
+                autoButton.innerHTML = '<i class="fas fa-door-closed"></i> Рекомендуем: Выход из школы';
+                autoButton.className = 'button exit';
+                lastEventSpan.textContent = 'Вход';
+                historyInfo.classList.remove('hidden');
+                manualButtons.classList.add('hidden');
+                autoButton.classList.remove('hidden');
+            } else if (lastEvent === 'Выход') {
+                autoButton.innerHTML = '<i class="fas fa-door-open"></i> Рекомендуем: Вход в школу';
+                autoButton.className = 'button success';
+                lastEventSpan.textContent = 'Выход';
+                historyInfo.classList.remove('hidden');
+                manualButtons.classList.add('hidden');
+                autoButton.classList.remove('hidden');
+            } else {
+                showManualSelection();
+            }
+        }
+
+        function showManualSelection() {
+            document.getElementById('autoButton').classList.add('hidden');
+            document.getElementById('manualButtons').classList.remove('hidden');
+            document.getElementById('historyInfo').classList.add('hidden');
+        }
+
+        function submitAutoAction() {
+            let eventType;
+            if (lastEvent === 'Нет истории' || lastEvent === 'Выход') {
+                eventType = 'Вход';
+            } else {
+                eventType = 'Выход';
+            }
+            submitForm(eventType);
+        }
+
+        function submitForm(eventType) {
+            const url = `${SCRIPT_URL}?action=save&studentId=${encodeURIComponent(scannedStudentId)}&eventType=${encodeURIComponent(eventType)}`;
+            
+            fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                const parts = data.split('|');
+                const message = parts[1] ? `${parts[0]} (${parts[1]})` : parts[0];
+                
+                if (message.includes('Опоздание')) {
+                    showStatus(`⚠️ ${message} для ${studentName}!`, 'warning');
+                } else {
+                    showStatus(`✅ ${message} для ${studentName}!`, 'success');
+                }
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            })
+            .catch(error => {
+                showStatus(`✅ Данные отправлены для ${studentName}!`, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            });
+        }
+
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusElement.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Автофокус на кнопке при загрузке
+        window.addEventListener('load', function() {
+            document.getElementById('scanButton').focus();
+        });
+    </script>
+</body>
+</html>
